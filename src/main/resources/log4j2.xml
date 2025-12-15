@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</Property>
+        <Property name="APP_LOG_ROOT">logs</Property>
+    </Properties>
+    
+    <Appenders>
+        <!-- Console Appender -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+        
+        <!-- File Appender -->
+        <RollingFile name="FileAppender" fileName="${APP_LOG_ROOT}/app.log"
+                     filePattern="${APP_LOG_ROOT}/app-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        
+        <!-- JSON Appender for Production -->
+        <RollingFile name="JsonAppender" fileName="${APP_LOG_ROOT}/app.json"
+                     filePattern="${APP_LOG_ROOT}/app-%d{yyyy-MM-dd}-%i.json">
+            <JSONLayout complete="false" compact="true" eventEol="true"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+    
+    <Loggers>
+        <!-- Root Logger -->
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
+        </Root>
+        
+        <!-- Application Loggers -->
+        <Logger name="com.ecommerce" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+        
+        <!-- Spark Loggers - Reduce verbosity -->
+        <Logger name="org.apache.spark" level="warn" additivity="false">
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+        
+        <Logger name="org.sparkproject" level="warn" additivity="false">
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+    </Loggers>
+</Configuration>

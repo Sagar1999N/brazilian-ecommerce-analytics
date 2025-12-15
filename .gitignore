@@ -100,4 +100,5 @@ logs/
 .env.*.local
 
 # Docker
-docker-data/  # Database data volumes
+docker-data/  # Database data volumes.env.prod
+.env.prod
