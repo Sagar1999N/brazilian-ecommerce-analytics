@@ -58,7 +58,7 @@ public class SimpleTestJob {
 			df.show(5);
 
 			// 5. Save to staging (simple version)
-			df.write().mode(SaveMode.Overwrite).parquet(".//data//staging//simple_orderss//");
+			df.write().mode(SaveMode.Overwrite).parquet("/data/staging/simple_orders");
 			logger.info("Saved to: data/staging/simple_orders");
 
 			logger.info("=== SIMPLE Test Job COMPLETED SUCCESSFULLY ===");
