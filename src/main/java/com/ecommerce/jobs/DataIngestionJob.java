@@ -10,6 +10,7 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ecommerce.config.AppConfig;
 import com.ecommerce.config.SparkSessionFactory;
 import com.ecommerce.ingestion.DataReader;
 import com.ecommerce.ingestion.DataValidator;
@@ -88,7 +89,7 @@ public class DataIngestionJob {
 			// 7. Save validated data to staging area
 			logger.info("Step 4: Saving to staging area...");
 
-			String stagingPath = "data/staging/";
+			String stagingPath = AppConfig.getString("app.data.bronze.path");// "data/staging/";
 
 			orders.write().mode(SaveMode.Overwrite).parquet(stagingPath + "orders");
 			logger.info("Orders saved to: {}", stagingPath + "orders");

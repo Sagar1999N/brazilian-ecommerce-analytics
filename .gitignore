@@ -102,3 +102,17 @@ logs/
 # Docker
 docker-data/  # Database data volumes.env.prod
 .env.prod
+
+# Parquet files
+*.parquet
+
+# Hadoop/Spark files
+*.crc
+_SUCCESS
+.success
+
+# Common data files to ignore
+*.csv
+*.json
+*.txt
+*.log
