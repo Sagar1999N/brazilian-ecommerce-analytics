@@ -9,17 +9,22 @@ import org.slf4j.LoggerFactory;
 
 import com.ecommerce.config.SparkSessionFactory;
 import com.ecommerce.transformation.silver.OrdersSilverTransformer;
+import com.ecommerce.transformation.silver.CustomersSilverTransformer;
+import com.ecommerce.transformation.silver.ProductsSilverTransformer;
 
 /**
- * Job to transform Bronze layer data to Silver layer.
+ * Job to transform Bronze layer data to Silver layer for ALL entities.
  * 
  * This job:
- * 1. Reads validated data from Bronze (staging)
- * 2. Applies data quality rules
- * 3. Deduplicates records
- * 4. Enriches with calculated fields
- * 5. Quarantines invalid records
- * 6. Writes clean data to Silver layer
+ * 1. Transforms Orders (Bronze → Silver)
+ * 2. Transforms Customers (Bronze → Silver)
+ * 3. Transforms Products (Bronze → Silver)
+ * 
+ * Each transformation includes:
+ * - Data quality rules and validation
+ * - Deduplication logic
+ * - Data enrichment with calculated fields
+ * - Quarantine logic for invalid records (DLQ pattern)
  * 
  * Design Patterns:
  * - Idempotent: Can be re-run safely
@@ -46,45 +51,113 @@ public class SilverTransformationJob {
     public static void main(String[] args) {
         logger.info("╔═══════════════════════════════════════════════════════════════╗");
         logger.info("║         SILVER TRANSFORMATION JOB - STARTED                   ║");
+        logger.info("║         Transforming: Orders, Customers, Products             ║");
         logger.info("╚═══════════════════════════════════════════════════════════════╝");
         
         SparkSession spark = null;
         long startTime = System.currentTimeMillis();
+        boolean allSuccess = true;
         
         try {
             // Step 1: Initialize Spark Session
             logger.info("Step 1: Initializing Spark Session...");
             spark = SparkSessionFactory.createSession("silver-transformation");
             
-            // Step 2: Transform Orders from Bronze to Silver
-            logger.info("Step 2: Starting Orders Bronze → Silver transformation...");
+            // Step 2: Transform Orders
+            logger.info("");
+            logger.info("═══════════════════════════════════════════════════════════════");
+            logger.info("Step 2: Transforming ORDERS (Bronze → Silver)");
+            logger.info("═══════════════════════════════════════════════════════════════");
             OrdersSilverTransformer ordersTransformer = new OrdersSilverTransformer(spark);
             OrdersSilverTransformer.TransformationResult ordersResult = ordersTransformer.transform();
-            
-            // Step 3: Log Results
-            logger.info("Step 3: Logging transformation results...");
             ordersResult.logSummary(logger);
             
-            // Step 4: Validate Success
             if (!ordersResult.isSuccess()) {
                 logger.error("❌ Orders transformation FAILED!");
-                logger.error("Error: {}", ordersResult.getErrorMessage());
+                allSuccess = false;
+            } else {
+                logger.info("✓ Orders transformation completed successfully");
+            }
+            
+            // Step 3: Transform Customers
+            logger.info("");
+            logger.info("═══════════════════════════════════════════════════════════════");
+            logger.info("Step 3: Transforming CUSTOMERS (Bronze → Silver)");
+            logger.info("═══════════════════════════════════════════════════════════════");
+            CustomersSilverTransformer customersTransformer = new CustomersSilverTransformer(spark);
+            CustomersSilverTransformer.TransformationResult customersResult = customersTransformer.transform();
+            customersResult.logSummary(logger);
+            
+            if (!customersResult.isSuccess()) {
+                logger.error("❌ Customers transformation FAILED!");
+                allSuccess = false;
+            } else {
+                logger.info("✓ Customers transformation completed successfully");
+            }
+            
+            // Step 4: Transform Products
+            logger.info("");
+            logger.info("═══════════════════════════════════════════════════════════════");
+            logger.info("Step 4: Transforming PRODUCTS (Bronze → Silver)");
+            logger.info("═══════════════════════════════════════════════════════════════");
+            ProductsSilverTransformer productsTransformer = new ProductsSilverTransformer(spark);
+            ProductsSilverTransformer.TransformationResult productsResult = productsTransformer.transform();
+            productsResult.logSummary(logger);
+            
+            if (!productsResult.isSuccess()) {
+                logger.error("❌ Products transformation FAILED!");
+                allSuccess = false;
+            } else {
+                logger.info("✓ Products transformation completed successfully");
+            }
+            
+            // Step 5: Final Summary
+            logger.info("");
+            logger.info("╔═══════════════════════════════════════════════════════════════╗");
+            logger.info("║              SILVER TRANSFORMATION SUMMARY                    ║");
+            logger.info("╠═══════════════════════════════════════════════════════════════╣");
+            logger.info("║  ORDERS:                                                      ║");
+            logger.info("║    Total: {} | Valid: {} | Invalid: {}", 
+                String.format("%-8d", ordersResult.getTotalRecords()),
+                String.format("%-8d", ordersResult.getValidRecords()),
+                String.format("%-8d", ordersResult.getInvalidRecords()));
+            logger.info("║                                                               ║");
+            logger.info("║  CUSTOMERS:                                                   ║");
+            logger.info("║    Total: {} | Valid: {} | Invalid: {}", 
+                String.format("%-8d", customersResult.getTotalRecords()),
+                String.format("%-8d", customersResult.getValidRecords()),
+                String.format("%-8d", customersResult.getInvalidRecords()));
+            logger.info("║                                                               ║");
+            logger.info("║  PRODUCTS:                                                    ║");
+            logger.info("║    Total: {} | Valid: {} | Invalid: {}", 
+                String.format("%-8d", productsResult.getTotalRecords()),
+                String.format("%-8d", productsResult.getValidRecords()),
+                String.format("%-8d", productsResult.getInvalidRecords()));
+            logger.info("╚═══════════════════════════════════════════════════════════════╝");
+            
+            // Check overall success
+            if (!allSuccess) {
+                logger.error("❌ Some transformations FAILED! Check logs above.");
                 System.exit(1);
             }
             
-            // Step 5: Calculate and log job duration
+            // Calculate and log job duration
             long endTime = System.currentTimeMillis();
             long durationSeconds = (endTime - startTime) / 1000;
             
+            logger.info("");
             logger.info("╔═══════════════════════════════════════════════════════════════╗");
             logger.info("║         SILVER TRANSFORMATION JOB - COMPLETED                 ║");
             logger.info("║         Duration: {} seconds", String.format("%-38s", durationSeconds));
             logger.info("║         Status: SUCCESS                                        ║");
             logger.info("╚═══════════════════════════════════════════════════════════════╝");
-            
-            // Future: Add Customers and Products transformations here
-            // CustomersSilverTransformer customersTransformer = new CustomersSilverTransformer(spark);
-            // ProductsSilverTransformer productsTransformer = new ProductsSilverTransformer(spark);
+            logger.info("");
+            logger.info("✓ Silver layer is ready!");
+            logger.info("  → data/silver/orders/");
+            logger.info("  → data/silver/customers/");
+            logger.info("  → data/silver/products/");
+            logger.info("");
+            logger.info("Next step: Run GoldTransformationJob to create dimensional model");
             
         } catch (Exception e) {
             logger.error("╔═══════════════════════════════════════════════════════════════╗");
@@ -92,7 +165,6 @@ public class SilverTransformationJob {
             logger.error("╚═══════════════════════════════════════════════════════════════╝");
             logger.error("Fatal error during Silver transformation", e);
             
-            // Print exception details for debugging
             logger.error("Exception type: {}", e.getClass().getName());
             logger.error("Exception message: {}", e.getMessage());
             
@@ -103,7 +175,6 @@ public class SilverTransformationJob {
             System.exit(1);
             
         } finally {
-            // Always cleanup Spark session
             if (spark != null) {
                 logger.info("Cleaning up Spark session...");
                 SparkSessionFactory.stopSession(spark);
