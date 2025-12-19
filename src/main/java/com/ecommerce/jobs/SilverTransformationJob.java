@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ecommerce.config.SparkSessionFactory;
 import com.ecommerce.transformation.silver.OrdersSilverTransformer;
+import com.ecommerce.transformation.silver.BaseSilverTransformer;
 import com.ecommerce.transformation.silver.CustomersSilverTransformer;
 import com.ecommerce.transformation.silver.ProductsSilverTransformer;
 
@@ -69,8 +70,8 @@ public class SilverTransformationJob {
             logger.info("Step 2: Transforming ORDERS (Bronze → Silver)");
             logger.info("═══════════════════════════════════════════════════════════════");
             OrdersSilverTransformer ordersTransformer = new OrdersSilverTransformer(spark);
-            OrdersSilverTransformer.TransformationResult ordersResult = ordersTransformer.transform();
-            ordersResult.logSummary(logger);
+            BaseSilverTransformer.TransformationResult ordersResult = ordersTransformer.transform();
+            ordersResult.logSummary(logger, "orders");
             
             if (!ordersResult.isSuccess()) {
                 logger.error("❌ Orders transformation FAILED!");
@@ -85,8 +86,8 @@ public class SilverTransformationJob {
             logger.info("Step 3: Transforming CUSTOMERS (Bronze → Silver)");
             logger.info("═══════════════════════════════════════════════════════════════");
             CustomersSilverTransformer customersTransformer = new CustomersSilverTransformer(spark);
-            CustomersSilverTransformer.TransformationResult customersResult = customersTransformer.transform();
-            customersResult.logSummary(logger);
+            BaseSilverTransformer.TransformationResult customersResult = customersTransformer.transform();
+            customersResult.logSummary(logger, "customers");
             
             if (!customersResult.isSuccess()) {
                 logger.error("❌ Customers transformation FAILED!");
@@ -101,8 +102,8 @@ public class SilverTransformationJob {
             logger.info("Step 4: Transforming PRODUCTS (Bronze → Silver)");
             logger.info("═══════════════════════════════════════════════════════════════");
             ProductsSilverTransformer productsTransformer = new ProductsSilverTransformer(spark);
-            ProductsSilverTransformer.TransformationResult productsResult = productsTransformer.transform();
-            productsResult.logSummary(logger);
+            BaseSilverTransformer.TransformationResult productsResult = productsTransformer.transform();
+            productsResult.logSummary(logger, "products");
             
             if (!productsResult.isSuccess()) {
                 logger.error("❌ Products transformation FAILED!");
