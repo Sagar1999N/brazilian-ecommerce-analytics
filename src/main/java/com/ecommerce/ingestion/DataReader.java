@@ -18,9 +18,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ecommerce.config.AppConfig;
+import com.ecommerce.schema.CategoryTranslationSchema;
 import com.ecommerce.schema.CustomerSchema;
+import com.ecommerce.schema.GeolocationSchema;
+import com.ecommerce.schema.OrderItemSchema;
+import com.ecommerce.schema.OrderPaymentSchema;
+import com.ecommerce.schema.OrderReviewSchema;
 import com.ecommerce.schema.OrderSchema;
 import com.ecommerce.schema.ProductSchema;
+import com.ecommerce.schema.SellerSchema;
 
 /**
  * Reads data files with schema validation and error handling.
@@ -72,6 +78,45 @@ public class DataReader {
 	 */
 	public Dataset<Row> readProducts() {
 		return readFile("products", ProductSchema.getSchema());
+	}
+
+	/**
+	 * Reads orderItems data with schema validation
+	 */
+	public Dataset<Row> readOrderItems() {
+		return readFile("order_items", OrderItemSchema.getSchema());
+	}
+
+	/**
+	 * Reads orderItems data with schema validation
+	 */
+	public Dataset<Row> readOrderReviews() {
+		return readFile("order_reviews", OrderReviewSchema.getSchema());
+	}
+
+	/**
+	 * Reads orderItems data with schema validation
+	 */
+	public Dataset<Row> readOrderPayments() {
+		return readFile("order_payments", OrderPaymentSchema.getSchema());
+	}
+
+	/**
+	 * Reads orderItems data with schema validation
+	 */
+	public Dataset<Row> readSellers() {
+		return readFile("sellers", SellerSchema.getSchema());
+	}
+
+	/**
+	 * Reads orderItems data with schema validation
+	 */
+	public Dataset<Row> readCategoryTranslation() {
+		return readFile("category_translation", CategoryTranslationSchema.getSchema());
+	}
+
+	public Dataset<Row> readGeolocation() {
+		return readFile("geolocation", GeolocationSchema.getSchema());
 	}
 
 	/**

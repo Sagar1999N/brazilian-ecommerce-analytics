@@ -73,6 +73,33 @@ public class DataIngestionJob {
 			logger.info("Products sample:");
 			products.show(5);
 
+			// Read orderItems
+			Dataset<Row> orderItems = dataReader.readOrderItems();
+			logger.info("Order Items sample:");
+			orderItems.show(5);
+
+			// Read orderItems
+			Dataset<Row> orderReviews = dataReader.readOrderReviews();
+			logger.info("Order Reviews sample:");
+			orderReviews.show(5);
+			// Read orderItems
+			Dataset<Row> orderPayments = dataReader.readOrderPayments();
+			logger.info("Order Payments sample:");
+			orderPayments.show(5);
+			// Read orderItems
+			Dataset<Row> sellers = dataReader.readSellers();
+			logger.info("Sellers sample:");
+			sellers.show(5);
+			// Read orderItems
+			Dataset<Row> categoryTranslations = dataReader.readCategoryTranslation();
+			logger.info("Category Translations sample:");
+			categoryTranslations.show(5);
+
+			Dataset<Row> geolocations = dataReader.readGeolocation();
+			logger.info("geolocations sample:");
+			geolocations.show(5);
+
+			
 			// 6. Validate data quality
 			logger.info("Step 3: Validating data quality...");
 			DataValidator validator = new DataValidator();
@@ -85,6 +112,28 @@ public class DataIngestionJob {
 
 			DataValidator.ValidationResult productsValidation = validator.validateDataQuality(products, "products");
 			productsValidation.logResults();
+
+			DataValidator.ValidationResult orderItemsValidation = validator.validateDataQuality(orderItems,
+					"order_items");
+			orderItemsValidation.logResults();
+
+			DataValidator.ValidationResult orderPaymentsValidation = validator.validateDataQuality(orderPayments,
+					"order_payments");
+			orderPaymentsValidation.logResults();
+
+			DataValidator.ValidationResult orderReviewsValidation = validator.validateDataQuality(orderReviews,
+					"order_reviews");
+			orderReviewsValidation.logResults();
+
+			DataValidator.ValidationResult sellersValidation = validator.validateDataQuality(sellers, "sellers");
+			sellersValidation.logResults();
+
+			DataValidator.ValidationResult categoryTranslationValidation = validator
+					.validateDataQuality(categoryTranslations, "category_translation");
+			categoryTranslationValidation.logResults();
+
+			DataValidator.ValidationResult geolocationsValidation = validator.validateDataQuality(geolocations, "geolocations");
+			geolocationsValidation.logResults();
 
 			// 7. Save validated data to staging area
 			logger.info("Step 4: Saving to staging area...");
@@ -99,6 +148,24 @@ public class DataIngestionJob {
 
 			products.write().mode(SaveMode.Overwrite).parquet(stagingPath + "products");
 			logger.info("Products saved to: {}", stagingPath + "products");
+
+			orderItems.write().mode(SaveMode.Overwrite).parquet(stagingPath + "order_items");
+			logger.info("Order_items saved to: {}", stagingPath + "order_items");
+
+			orderReviews.write().mode(SaveMode.Overwrite).parquet(stagingPath + "order_reviews");
+			logger.info("Order_reviews saved to: {}", stagingPath + "order_reviews");
+
+			orderPayments.write().mode(SaveMode.Overwrite).parquet(stagingPath + "order_payments");
+			logger.info("Order_payments saved to: {}", stagingPath + "order_payments");
+
+			sellers.write().mode(SaveMode.Overwrite).parquet(stagingPath + "sellers");
+			logger.info("Sellers saved to: {}", stagingPath + "sellers");
+
+			categoryTranslations.write().mode(SaveMode.Overwrite).parquet(stagingPath + "category_translation");
+			logger.info("Category_translation saved to: {}", stagingPath + "category_translation");
+
+			geolocations.write().mode(SaveMode.Overwrite).parquet(stagingPath + "geolocations");
+			logger.info("Geolocations saved to: {}", stagingPath + "geolocations");
 
 			logger.info("Data ingestion completed successfully!");
 

@@ -91,6 +91,13 @@ public class DataValidator {
                     result.addError("Found " + nullProductIds + " rows with null product_id");
                 }
                 break;
+
+            case "order_items":
+                long nullOrderItemIds = dataset.filter(dataset.col("order_item_id").isNull()).count();
+                if (nullOrderItemIds > 0) {
+                    result.addError("Found " + nullOrderItemIds + " rows with null order_item_id");
+                }
+                break;
         }
         
         // Check for duplicates
@@ -101,6 +108,31 @@ public class DataValidator {
                 result.addError("Found " + duplicates + " duplicate order_ids");
             }
         }
+        if (dataType.equals("order_items")) {
+            long distinctCount = dataset.select("order_item_id").distinct().count();
+            if (distinctCount < totalCount) {
+                long duplicates = totalCount - distinctCount;
+                result.addError("Found " + duplicates + " duplicate order_item_ids");
+            }
+        }
+
+        // Check for duplicates
+        if (dataType.equals("products")) {
+            long distinctCount = dataset.select("product_id").distinct().count();
+            if (distinctCount < totalCount) {
+                long duplicates = totalCount - distinctCount;
+                result.addError("Found " + duplicates + " duplicate product_ids");
+            }
+        }
+        // Check for duplicates
+        if (dataType.equals("customers")) {
+            long distinctCount = dataset.select("customer_id").distinct().count();
+            if (distinctCount < totalCount) {
+                long duplicates = totalCount - distinctCount;
+                result.addError("Found " + duplicates + " duplicate customer_ids");
+            }
+        }
+
         
         // Check for negative values where applicable
         if (dataType.equals("products")) {

@@ -74,6 +74,52 @@ public class DatasetDownloader {
         
         Files.writeString(Paths.get(rawDataPath + "olist_products_dataset.csv"), productsSample);
         
+        // Create sample orderItems CSV
+        String orderItemsSample = "order_id,order_item_id,product_id,seller_id,shipping_limit_date,price,freight_value\n" +
+                                 "e481f51cbdc54678b7cc49136f2d6af7,1,1e9e8ef04dbcff4541ed26657ea517e5,4f3b6e2d1c0a9b8c7d6e5f4a3b2c1d0e,2017-10-05 00:00:00,115.98,19.99\n" +
+                                 "e481f51cbdc54678b7cc49136f2d6af7,2,3aa071139cb16b67ca9e5dea641aaa2f,5e4f3d2c1b0a987654321fedcba98765,2017-10-05 00:00:00,89.90,15.50\n" +
+                                 "53cdb2fc8bc7dce0b6741e2150273451,1,96bd76ec8810374ed1b65e291975717f,6f5e4d3c2b1a09876543210fedcba987,2018-07-27 00:00:00,120.50,25.00";
+
+        Files.writeString(Paths.get(rawDataPath + "olist_order_items_dataset.csv"), orderItemsSample);
+        
+     // Add to createSampleData()
+        String orderPaymentsSample = "order_id,payment_sequential,payment_type,payment_installments,payment_value\n" +
+                                    "e481f51cbdc54678b7cc49136f2d6af7,1,credit_card,8,115.98\n" +
+                                    "53cdb2fc8bc7dce0b6741e2150273451,1,boleto,1,120.50\n" +
+                                    "47770eb9100c2d0c44946d9cf07ec65d,1,credit_card,10,134.90\n" +
+                                    "47770eb9100c2d0c44946d9cf07ec65d,2,voucher,1,10.00";
+
+        Files.writeString(Paths.get(rawDataPath + "olist_order_payments_dataset.csv"), orderPaymentsSample);
+        
+        String orderReviewsSample = "review_id,order_id,review_score,review_comment_title,review_comment_message,review_creation_date,review_answer_timestamp\n" +
+                "e4d3a8f1c2b0a9d8e7f6c5b4a3d2e1f0,e481f51cbdc54678b7cc49136f2d6af7,5,\"Great product!\",\"Fast delivery and excellent quality.\",2017-10-11 10:00:00,2017-10-12 15:30:00\n" +
+                "f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0,47770eb9100c2d0c44946d9cf07ec65d,4,\"Good\",null,2018-08-18 09:15:00,2018-08-19 11:20:00";
+
+        Files.writeString(Paths.get(rawDataPath + "olist_order_reviews_dataset.csv"), orderReviewsSample);
+        
+        String sellersSample = "seller_id,seller_zip_code_prefix,seller_city,seller_state\n" +
+                "4f3b6e2d1c0a9b8c7d6e5f4a3b2c1d0e,01311,sao paulo,SP\n" +
+                "5e4f3d2c1b0a987654321fedcba98765,20031,rio de janeiro,RJ\n" +
+                "6f5e4d3c2b1a09876543210fedcba987,30130,belo horizonte,MG";
+
+        Files.writeString(Paths.get(rawDataPath + "olist_sellers_dataset.csv"), sellersSample);
+
+        String translationSample = "product_category_name,product_category_name_english\n" +
+        		"perfumaria,perfumery\n" +
+        		"artes,art\n" +
+        		"esporte_lazer,sports_leisure";
+
+        Files.writeString(Paths.get(rawDataPath + "product_category_name_translation.csv"), translationSample);
+        
+     // Add to createSampleData()
+        String geolocationSample = "geolocation_zip_code_prefix,geolocation_lat,geolocation_lng,geolocation_city,geolocation_state\n" +
+                                  "01311,-23.5505,-46.6333,sao paulo,SP\n" +
+                                  "20031,-22.9068,-43.1729,rio de janeiro,RJ\n" +
+                                  "30130,-19.9167,-43.9345,belo horizonte,MG\n" +
+                                  "79090,-20.4428,-54.6464,campo grande,MS"; // MS spans timezones
+
+        Files.writeString(Paths.get(rawDataPath + "olist_geolocation_dataset.csv"), geolocationSample);
+        
         logger.info("Created sample data files for development");
     }
     
